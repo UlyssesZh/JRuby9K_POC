@@ -60,74 +60,74 @@ java_import 'android.view.View'
 # set_attribute button, :padding, [10, 20, 10, 30]
 #
 def set_attribute(target, k, v)
-  assign_method = "#{k}="
-  field_assign_method = "#{k.to_s.gsub(/(_)([a-z])/) { $2.upcase }}="
-  setter_method = "set#{k.to_s.gsub(/(^|_)([a-z])/) { $2.upcase }}"
-  method_name =
-      (target.respond_to?(assign_method) && assign_method) ||
-      (target.respond_to?(field_assign_method) && field_assign_method) ||
-      (target.respond_to?(setter_method) && setter_method) ||
-      k
-  invoke_with_converted_arguments(target, method_name, v)
+	assign_method = "#{k}="
+	field_assign_method = "#{k.to_s.gsub(/(_)([a-z])/) { $2.upcase }}="
+	setter_method = "set#{k.to_s.gsub(/(^|_)([a-z])/) { $2.upcase }}"
+	method_name =
+			(target.respond_to?(assign_method) && assign_method) ||
+					(target.respond_to?(field_assign_method) && field_assign_method) ||
+					(target.respond_to?(setter_method) && setter_method) ||
+					k
+	invoke_with_converted_arguments(target, method_name, v)
 end
 
 def invoke_with_converted_arguments(target, method_name, values)
-  converted_values = [*values].map { |i| View.convert_constant(i) }
-  scaled_values = converted_values.map.with_index do |v, i|
-    v.is_a?(Integer) && v >= 0x80000000 && v <= 0xFFFFFFFF ?
-        v.to_i - 0x100000000 : v
-  end
-  target.send(method_name, *scaled_values)
+	converted_values = [*values].map { |i| View.convert_constant(i) }
+	scaled_values = converted_values.map.with_index do |v, i|
+		v.is_a?(Integer) && v >= 0x80000000 && v <= 0xFFFFFFFF ?
+				v.to_i - 0x100000000 : v
+	end
+	target.send(method_name, *scaled_values)
 end
 
 View.class_eval do
-  @@convert_constants ||= {}
-
-  def self.add_constant_conversion(from, to)
-    symbol = from.to_s.downcase.to_sym
-    if @@convert_constants.include?(symbol)
-      puts "WARNING: Overwriting symbol to constant conversion for #{symbol.inspect}:  #{@@convert_constants[symbol].inspect} => #{to.inspect}"
-    end
-    @@convert_constants[symbol] = to
-  end
-
-  def self.convert_constant(from)
-    return from unless from.is_a?(Symbol)
-    unless @@convert_constants.include?(from)
-      raise "Symbol #{from.inspect} doesn't have a corresponding View constant #{from.to_s.upcase}."
-    end
-    @@convert_constants[from]
-  end
-
-  def self.setup_constant_conversion
-    (self.constants - self.superclass.constants).each do |i|
-      View.add_constant_conversion i, self.const_get(i)
-    end
-  end
-
-  def configure(context, params = {})
-    if (width = params.delete(:width))
-      getLayoutParams.width = View.convert_constant(width)
-      puts "\nDEPRECATION: The ':width' option is deprecated.  Use :layout => {:width => XX} instead."
-    end
-
-    if (height = params.delete(:height))
-      getLayoutParams.height = View.convert_constant(height)
-      puts "\nDEPRECATION: The ':height' option is deprecated.  Use :layout => {:height => XX} instead."
-    end
-
-    if (margins = params.delete(:margins))
-      getLayoutParams.set_margins(*margins)
-      puts "\nDEPRECATION: The ':margins' option is deprecated.  Use :layout => {:margins => [L, T, R, B]} instead."
-    end
-
-    if (layout = params.delete(:layout))
-      lp = getLayoutParams
-      layout.each { |k, v| set_attribute(lp, k, v) }
-    end
-
-    params.each { |k, v| set_attribute(self, k, v) }
-  end
+	@@convert_constants ||= {}
+	
+	def self.add_constant_conversion(from, to)
+		symbol = from.to_s.downcase.to_sym
+		if @@convert_constants.include?(symbol)
+			puts "WARNING: Overwriting symbol to constant conversion for #{symbol.inspect}:  #{@@convert_constants[symbol].inspect} => #{to.inspect}"
+		end
+		@@convert_constants[symbol] = to
+	end
+	
+	def self.convert_constant(from)
+		return from unless from.is_a?(Symbol)
+		unless @@convert_constants.include?(from)
+			raise "Symbol #{from.inspect} doesn't have a corresponding View constant #{from.to_s.upcase}."
+		end
+		@@convert_constants[from]
+	end
+	
+	def self.setup_constant_conversion
+		(self.constants - self.superclass.constants).each do |i|
+			View.add_constant_conversion i, self.const_get(i)
+		end
+	end
+	
+	def configure(context, params = {})
+		if (width = params.delete(:width))
+			getLayoutParams.width = View.convert_constant(width)
+			puts "\nDEPRECATION: The ':width' option is deprecated.  Use :layout => {:width => XX} instead."
+		end
+		
+		if (height = params.delete(:height))
+			getLayoutParams.height = View.convert_constant(height)
+			puts "\nDEPRECATION: The ':height' option is deprecated.  Use :layout => {:height => XX} instead."
+		end
+		
+		if (margins = params.delete(:margins))
+			getLayoutParams.set_margins(*margins)
+			puts "\nDEPRECATION: The ':margins' option is deprecated.  Use :layout => {:margins => [L, T, R, B]} instead."
+		end
+		
+		if (layout = params.delete(:layout))
+			lp = getLayoutParams
+			layout.each { |k, v| set_attribute(lp, k, v) }
+		end
+		
+		params.each { |k, v| set_attribute(self, k, v) }
+	end
 end
 
 #
@@ -135,7 +135,7 @@ end
 #
 java_import 'android.view.ViewGroup'
 ViewGroup::LayoutParams.constants.each do |i|
-  View.add_constant_conversion i, ViewGroup::LayoutParams.const_get(i)
+	View.add_constant_conversion i, ViewGroup::LayoutParams.const_get(i)
 end
 
 #
@@ -143,7 +143,7 @@ end
 #
 java_import 'android.view.Gravity'
 Gravity.constants.each do |i|
-  View.add_constant_conversion i, Gravity.const_get(i)
+	View.add_constant_conversion i, Gravity.const_get(i)
 end
 
 #
@@ -151,21 +151,21 @@ end
 #
 
 def ruboto_import_widgets(*widgets)
-  widgets.each { |i| ruboto_import_widget i }
+	widgets.each { |i| ruboto_import_widget i }
 end
 
 def ruboto_import_widget(class_name, package_name='android.widget')
-  if class_name.is_a?(String) or class_name.is_a?(Symbol)
-    klass = java_import("#{package_name}.#{class_name}") || eval("Java::#{package_name}.#{class_name}")
-  else
-    klass = class_name
-    java_import klass
-    class_name = klass.java_class.name.split('.')[-1]
-  end
-
-  return unless klass
-
-  method_str = "
+	if class_name.is_a?(String) or class_name.is_a?(Symbol)
+		klass = java_import("#{package_name}.#{class_name}") || eval("Java::#{package_name}.#{class_name}")
+	else
+		klass = class_name
+		java_import klass
+		class_name = klass.java_class.name.split('.')[-1]
+	end
+	
+	return unless klass
+	
+	method_str = "
      def #{(class_name.to_s.gsub(/([A-Z])/) { '_' + $1.downcase })[1..-1]}(params={})
         if force_style = params.delete(:default_style)
           rv = #{class_name}.new(self, nil, force_style)
@@ -190,22 +190,22 @@ def ruboto_import_widget(class_name, package_name='android.widget')
         rv
      end
    "
-  RubotoActivity.class_eval method_str
-
-  # FIXME(uwe): Remove condition when we stop support for api level < 11
-  if android.os.Build::VERSION::SDK_INT >= 11
-    android.app.Fragment.class_eval method_str.gsub('self', 'activity')
-  end
-  # EMXIF
-
-  setup_list_view if class_name == :ListView
-  setup_spinner if class_name == :Spinner
-  setup_button if class_name == :Button
-  setup_image_button if class_name == :ImageButton
-  setup_linear_layout if class_name == :LinearLayout
-  setup_relative_layout if class_name == :RelativeLayout
-
-  klass
+	RubotoActivity.class_eval method_str
+	
+	# FIXME(uwe): Remove condition when we stop support for api level < 11
+	if android.os.Build::VERSION::SDK_INT >= 11
+		android.app.Fragment.class_eval method_str.gsub('self', 'activity')
+	end
+	# EMXIF
+	
+	setup_list_view if class_name == :ListView
+	setup_spinner if class_name == :Spinner
+	setup_button if class_name == :Button
+	setup_image_button if class_name == :ImageButton
+	setup_linear_layout if class_name == :LinearLayout
+	setup_relative_layout if class_name == :RelativeLayout
+	
+	klass
 end
 
 #
@@ -213,60 +213,60 @@ end
 #
 
 def setup_linear_layout
-  Java::android.widget.LinearLayout.setup_constant_conversion
+	Java::android.widget.LinearLayout.setup_constant_conversion
 end
 
 def setup_relative_layout
-  Java::android.widget.RelativeLayout.setup_constant_conversion
+	Java::android.widget.RelativeLayout.setup_constant_conversion
 end
 
 def setup_button
-  # legacy
+	# legacy
 end
 
 def setup_image_button
-  # legacy
+	# legacy
 end
 
 def setup_list_view
-  android.widget.ListView.__persistent__ = true
-  android.widget.ListView.class_eval do
-    def configure(context, params = {})
-      if (list = params.delete(:list))
-        item_layout = params.delete(:item_layout) || android.R::layout::simple_list_item_1
-        params[:adapter] = android.widget.ArrayAdapter.new(context, item_layout, list)
-      end
-      super(context, params)
-    end
-
-    def reload_list(list)
-      adapter.clear
-      adapter.addAll(list)
-      adapter.notifyDataSetChanged
-      invalidate
-    end
-  end
+	android.widget.ListView.__persistent__ = true
+	android.widget.ListView.class_eval do
+		def configure(context, params = {})
+			if (list = params.delete(:list))
+				item_layout = params.delete(:item_layout) || android.R::layout::simple_list_item_1
+				params[:adapter] = android.widget.ArrayAdapter.new(context, item_layout, list)
+			end
+			super(context, params)
+		end
+		
+		def reload_list(list)
+			adapter.clear
+			adapter.addAll(list)
+			adapter.notifyDataSetChanged
+			invalidate
+		end
+	end
 end
 
 def setup_spinner
-  android.widget.Spinner.__persistent__ = true
-  android.widget.Spinner.class_eval do
-    def configure(context, params = {})
-      if (list = params.delete(:list))
-        item_layout = params.delete(:item_layout)
-        params[:adapter] = android.widget.ArrayAdapter.new(context, item_layout || android.R::layout::simple_spinner_item, list)
-        dropdown_layout = params.delete(:dropdown_layout)
-        params[:adapter].setDropDownViewResource(dropdown_layout) if dropdown_layout
-      end
-      super(context, params)
-    end
-
-    def reload_list(list)
-      adapter.clear
-      adapter.addAll(list)
-      adapter.notifyDataSetChanged
-      invalidate
-    end
-  end
+	android.widget.Spinner.__persistent__ = true
+	android.widget.Spinner.class_eval do
+		def configure(context, params = {})
+			if (list = params.delete(:list))
+				item_layout = params.delete(:item_layout)
+				params[:adapter] = android.widget.ArrayAdapter.new(context, item_layout || android.R::layout::simple_spinner_item, list)
+				dropdown_layout = params.delete(:dropdown_layout)
+				params[:adapter].setDropDownViewResource(dropdown_layout) if dropdown_layout
+			end
+			super(context, params)
+		end
+		
+		def reload_list(list)
+			adapter.clear
+			adapter.addAll(list)
+			adapter.notifyDataSetChanged
+			invalidate
+		end
+	end
 end
 

@@ -110,119 +110,119 @@ package java.lang.invoke;
  * @author Remi Forax, JSR 292 EG
  */
 public class SwitchPoint {
-    private static final MethodHandle
-            K_true  = MethodHandles.constant(boolean.class, true),
-            K_false = MethodHandles.constant(boolean.class, false);
-
-    private final MutableCallSite mcs;
-    private final MethodHandle mcsInvoker;
-
-    /**
-     * Creates a new switch point.
-     */
-    public SwitchPoint() {
-        this.mcs = new MutableCallSite(K_true);
-        this.mcsInvoker = mcs.dynamicInvoker();
-    }
-
-    /**
-     * Determines if this switch point has been invalidated yet.
-     *
-     * <p style="font-size:smaller;">
-     * <em>Discussion:</em>
-     * Because of the one-way nature of invalidation, once a switch point begins
-     * to return true for {@code hasBeenInvalidated},
-     * it will always do so in the future.
-     * On the other hand, a valid switch point visible to other threads may
-     * be invalidated at any moment, due to a request by another thread.
-     * <p style="font-size:smaller;">
-     * Since invalidation is a global and immediate operation,
-     * the execution of this query, on a valid switchpoint,
-     * must be internally sequenced with any
-     * other threads that could cause invalidation.
-     * This query may therefore be expensive.
-     * The recommended way to build a boolean-valued method handle
-     * which queries the invalidation state of a switch point {@code s} is
-     * to call {@code s.guardWithTest} on
-     * {@link MethodHandles#constant constant} true and false method handles.
-     *
-     * @return true if this switch point has been invalidated
-     */
-    public boolean hasBeenInvalidated() {
-        return (mcs.getTarget() != K_true);
-    }
-
-    /**
-     * Returns a method handle which always delegates either to the target or the fallback.
-     * The method handle will delegate to the target exactly as long as the switch point is valid.
-     * After that, it will permanently delegate to the fallback.
-     * <p>
-     * The target and fallback must be of exactly the same method type,
-     * and the resulting combined method handle will also be of this type.
-     *
-     * @param target the method handle selected by the switch point as long as it is valid
-     * @param fallback the method handle selected by the switch point after it is invalidated
-     * @return a combined method handle which always calls either the target or fallback
-     * @throws NullPointerException if either argument is null
-     * @throws IllegalArgumentException if the two method types do not match
-     * @see MethodHandles#guardWithTest
-     */
-    public MethodHandle guardWithTest(MethodHandle target, MethodHandle fallback) {
-        if (mcs.getTarget() == K_false)
-            return fallback;  // already invalid
-        return MethodHandles.guardWithTest(mcsInvoker, target, fallback);
-    }
-
-    /**
-     * Sets all of the given switch points into the invalid state.
-     * After this call executes, no thread will observe any of the
-     * switch points to be in a valid state.
-     * <p>
-     * This operation is likely to be expensive and should be used sparingly.
-     * If possible, it should be buffered for batch processing on sets of switch points.
-     * <p>
-     * If {@code switchPoints} contains a null element,
-     * a {@code NullPointerException} will be raised.
-     * In this case, some non-null elements in the array may be
-     * processed before the method returns abnormally.
-     * Which elements these are (if any) is implementation-dependent.
-     *
-     * <p style="font-size:smaller;">
-     * <em>Discussion:</em>
-     * For performance reasons, {@code invalidateAll} is not a virtual method
-     * on a single switch point, but rather applies to a set of switch points.
-     * Some implementations may incur a large fixed overhead cost
-     * for processing one or more invalidation operations,
-     * but a small incremental cost for each additional invalidation.
-     * In any case, this operation is likely to be costly, since
-     * other threads may have to be somehow interrupted
-     * in order to make them notice the updated switch point state.
-     * However, it may be observed that a single call to invalidate
-     * several switch points has the same formal effect as many calls,
-     * each on just one of the switch points.
-     *
-     * <p style="font-size:smaller;">
-     * <em>Implementation Note:</em>
-     * Simple implementations of {@code SwitchPoint} may use
-     * a private {@link MutableCallSite} to publish the state of a switch point.
-     * In such an implementation, the {@code invalidateAll} method can
-     * simply change the call site's target, and issue one call to
-     * {@linkplain MutableCallSite#syncAll synchronize} all the
-     * private call sites.
-     *
-     * @param switchPoints an array of call sites to be synchronized
-     * @throws NullPointerException if the {@code switchPoints} array reference is null
-     *                              or the array contains a null
-     */
-    public static void invalidateAll(SwitchPoint[] switchPoints) {
-        if (switchPoints.length == 0)  return;
-        MutableCallSite[] sites = new MutableCallSite[switchPoints.length];
-        for (int i = 0; i < switchPoints.length; i++) {
-            SwitchPoint spt = switchPoints[i];
-            if (spt == null)  break;  // MSC.syncAll will trigger a NPE
-            sites[i] = spt.mcs;
-            spt.mcs.setTarget(K_false);
-        }
+	private static final MethodHandle
+			K_true  = MethodHandles.constant(boolean.class, true),
+			K_false = MethodHandles.constant(boolean.class, false);
+	
+	private final MutableCallSite mcs;
+	private final MethodHandle mcsInvoker;
+	
+	/**
+	 * Creates a new switch point.
+	 */
+	public SwitchPoint() {
+		this.mcs = new MutableCallSite(K_true);
+		this.mcsInvoker = mcs.dynamicInvoker();
+	}
+	
+	/**
+	 * Determines if this switch point has been invalidated yet.
+	 *
+	 * <p style="font-size:smaller;">
+	 * <em>Discussion:</em>
+	 * Because of the one-way nature of invalidation, once a switch point begins
+	 * to return true for {@code hasBeenInvalidated},
+	 * it will always do so in the future.
+	 * On the other hand, a valid switch point visible to other threads may
+	 * be invalidated at any moment, due to a request by another thread.
+	 * <p style="font-size:smaller;">
+	 * Since invalidation is a global and immediate operation,
+	 * the execution of this query, on a valid switchpoint,
+	 * must be internally sequenced with any
+	 * other threads that could cause invalidation.
+	 * This query may therefore be expensive.
+	 * The recommended way to build a boolean-valued method handle
+	 * which queries the invalidation state of a switch point {@code s} is
+	 * to call {@code s.guardWithTest} on
+	 * {@link MethodHandles#constant constant} true and false method handles.
+	 *
+	 * @return true if this switch point has been invalidated
+	 */
+	public boolean hasBeenInvalidated() {
+		return (mcs.getTarget() != K_true);
+	}
+	
+	/**
+	 * Returns a method handle which always delegates either to the target or the fallback.
+	 * The method handle will delegate to the target exactly as long as the switch point is valid.
+	 * After that, it will permanently delegate to the fallback.
+	 * <p>
+	 * The target and fallback must be of exactly the same method type,
+	 * and the resulting combined method handle will also be of this type.
+	 *
+	 * @param target the method handle selected by the switch point as long as it is valid
+	 * @param fallback the method handle selected by the switch point after it is invalidated
+	 * @return a combined method handle which always calls either the target or fallback
+	 * @throws NullPointerException if either argument is null
+	 * @throws IllegalArgumentException if the two method types do not match
+	 * @see MethodHandles#guardWithTest
+	 */
+	public MethodHandle guardWithTest(MethodHandle target, MethodHandle fallback) {
+		if (mcs.getTarget() == K_false)
+			return fallback;  // already invalid
+		return MethodHandles.guardWithTest(mcsInvoker, target, fallback);
+	}
+	
+	/**
+	 * Sets all of the given switch points into the invalid state.
+	 * After this call executes, no thread will observe any of the
+	 * switch points to be in a valid state.
+	 * <p>
+	 * This operation is likely to be expensive and should be used sparingly.
+	 * If possible, it should be buffered for batch processing on sets of switch points.
+	 * <p>
+	 * If {@code switchPoints} contains a null element,
+	 * a {@code NullPointerException} will be raised.
+	 * In this case, some non-null elements in the array may be
+	 * processed before the method returns abnormally.
+	 * Which elements these are (if any) is implementation-dependent.
+	 *
+	 * <p style="font-size:smaller;">
+	 * <em>Discussion:</em>
+	 * For performance reasons, {@code invalidateAll} is not a virtual method
+	 * on a single switch point, but rather applies to a set of switch points.
+	 * Some implementations may incur a large fixed overhead cost
+	 * for processing one or more invalidation operations,
+	 * but a small incremental cost for each additional invalidation.
+	 * In any case, this operation is likely to be costly, since
+	 * other threads may have to be somehow interrupted
+	 * in order to make them notice the updated switch point state.
+	 * However, it may be observed that a single call to invalidate
+	 * several switch points has the same formal effect as many calls,
+	 * each on just one of the switch points.
+	 *
+	 * <p style="font-size:smaller;">
+	 * <em>Implementation Note:</em>
+	 * Simple implementations of {@code SwitchPoint} may use
+	 * a private {@link MutableCallSite} to publish the state of a switch point.
+	 * In such an implementation, the {@code invalidateAll} method can
+	 * simply change the call site's target, and issue one call to
+	 * {@linkplain MutableCallSite#syncAll synchronize} all the
+	 * private call sites.
+	 *
+	 * @param switchPoints an array of call sites to be synchronized
+	 * @throws NullPointerException if the {@code switchPoints} array reference is null
+	 *                              or the array contains a null
+	 */
+	public static void invalidateAll(SwitchPoint[] switchPoints) {
+		if (switchPoints.length == 0)  return;
+		MutableCallSite[] sites = new MutableCallSite[switchPoints.length];
+		for (int i = 0; i < switchPoints.length; i++) {
+			SwitchPoint spt = switchPoints[i];
+			if (spt == null)  break;  // MSC.syncAll will trigger a NPE
+			sites[i] = spt.mcs;
+			spt.mcs.setTarget(K_false);
+		}
 //        MutableCallSite.syncAll(sites);
-    }
+	}
 }

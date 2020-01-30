@@ -10,6 +10,6 @@ require 'ruboto/base'
 
 java_import 'org.ruboto.RubotoBroadcastReceiver'
 module Ruboto
-  module BroadcastReceiver
-  end
+	module BroadcastReceiver
+	end
 end

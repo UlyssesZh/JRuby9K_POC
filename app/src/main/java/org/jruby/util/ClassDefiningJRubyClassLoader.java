@@ -44,44 +44,44 @@ import java.security.ProtectionDomain;
 import dalvik.system.InMemoryDexClassLoader;
 
 public class ClassDefiningJRubyClassLoader extends URLClassLoader implements ClassDefiningClassLoader {
-
-    final static ProtectionDomain DEFAULT_DOMAIN;
-
-    static {
-        ProtectionDomain defaultDomain = null;
-        try {
-            defaultDomain = JRubyClassLoader.class.getProtectionDomain();
-        } catch (SecurityException se) {
-            // just use null since we can't acquire protection domain
-        }
-        DEFAULT_DOMAIN = defaultDomain;
-    }
-
-    public ClassDefiningJRubyClassLoader(ClassLoader parent) {
-        super(new URL[0], parent);
-    }
-
-    public Class<?> defineClass(String name, byte[] bytes) {
-        return defineClass(name, bytes, DEFAULT_DOMAIN);
-    }
-
-    public Class<?> defineClass(String name, byte[] bytes, ProtectionDomain domain) {
-        System.out.println("defineClass: name: " + name);
-
-        DexOptions dexOptions = new DexOptions();
-        DexFile dexFile = new DexFile(dexOptions);
-        DirectClassFile classFile = new DirectClassFile(bytes, name.replace('.', '/') + ".class", true);
-        classFile.setAttributeFactory(StdAttributeFactory.THE_ONE);
-        classFile.getMagic();
-        dexFile.add(CfTranslator.translate(classFile, null, new CfOptions(), dexOptions, dexFile));
-
-        try {
-            Dex dex = new Dex(dexFile.toDex(null, false));
-            return new InMemoryDexClassLoader(ByteBuffer.wrap(dex.getBytes()), this).loadClass(name);
-        } catch (IOException | ClassNotFoundException e1) {
-            System.out.println("Exception loading class with DexClassLoader: " + e1);
-            e1.printStackTrace();
-        }
-        return null;
-    }
+	
+	final static ProtectionDomain DEFAULT_DOMAIN;
+	
+	static {
+		ProtectionDomain defaultDomain = null;
+		try {
+			defaultDomain = JRubyClassLoader.class.getProtectionDomain();
+		} catch (SecurityException se) {
+			// just use null since we can't acquire protection domain
+		}
+		DEFAULT_DOMAIN = defaultDomain;
+	}
+	
+	public ClassDefiningJRubyClassLoader(ClassLoader parent) {
+		super(new URL[0], parent);
+	}
+	
+	public Class<?> defineClass(String name, byte[] bytes) {
+		return defineClass(name, bytes, DEFAULT_DOMAIN);
+	}
+	
+	public Class<?> defineClass(String name, byte[] bytes, ProtectionDomain domain) {
+		System.out.println("defineClass: name: " + name);
+		
+		DexOptions dexOptions = new DexOptions();
+		DexFile dexFile = new DexFile(dexOptions);
+		DirectClassFile classFile = new DirectClassFile(bytes, name.replace('.', '/') + ".class", true);
+		classFile.setAttributeFactory(StdAttributeFactory.THE_ONE);
+		classFile.getMagic();
+		dexFile.add(CfTranslator.translate(classFile, null, new CfOptions(), dexOptions, dexFile));
+		
+		try {
+			Dex dex = new Dex(dexFile.toDex(null, false));
+			return new InMemoryDexClassLoader(ByteBuffer.wrap(dex.getBytes()), this).loadClass(name);
+		} catch (IOException | ClassNotFoundException e1) {
+			System.out.println("Exception loading class with DexClassLoader: " + e1);
+			e1.printStackTrace();
+		}
+		return null;
+	}
 }

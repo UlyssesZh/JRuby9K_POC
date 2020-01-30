@@ -8,9 +8,9 @@ SRC_DIR = PROJECT_DIR
 puts "APK_PATH: #{APK_PATH.inspect}"
 
 module DirGlobPatch
-  def [](*patterns, **opts)
-    super(*patterns.map{|pattern| pattern.sub('uri:classloader:', APK_PATH)}, **opts)
-  end
+	def [](*patterns, **opts)
+		super(*patterns.map{|pattern| pattern.sub('uri:classloader:', APK_PATH)}, **opts)
+	end
 end
 
 Dir.singleton_class.prepend DirGlobPatch

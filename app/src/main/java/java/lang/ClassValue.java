@@ -28,28 +28,28 @@ package java.lang;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class ClassValue<T> {
-    private final ConcurrentHashMap<Class<?>, T> cache = new ConcurrentHashMap(128);
-
-    public ClassValue() {
-    }
-
-    protected abstract T computeValue(Class<?> type);
-
-    public T get(Class<?> cls) {
-        T obj = this.cache.get(cls);
-        if (obj != null) {
-            return obj;
-        } else {
-            synchronized (this) {
-                obj = this.cache.get(cls);
-                if (obj != null) {
-                    return obj;
-                } else {
-                    obj = this.computeValue(cls);
-                    this.cache.put(cls, obj);
-                    return obj;
-                }
-            }
-        }
-    }
+	private final ConcurrentHashMap<Class<?>, T> cache = new ConcurrentHashMap(128);
+	
+	public ClassValue() {
+	}
+	
+	protected abstract T computeValue(Class<?> type);
+	
+	public T get(Class<?> cls) {
+		T obj = this.cache.get(cls);
+		if (obj != null) {
+			return obj;
+		} else {
+			synchronized (this) {
+				obj = this.cache.get(cls);
+				if (obj != null) {
+					return obj;
+				} else {
+					obj = this.computeValue(cls);
+					this.cache.put(cls, obj);
+					return obj;
+				}
+			}
+		}
+	}
 }

@@ -18,11 +18,11 @@ ActiveRecord::Base.default_timezone = :utc
 ActiveRecord::Base.logger.info "Using database at: #{DB_FILE}"
 
 connection_options = {
-  adapter: 'sqlite3',
-  driver: 'org.sqldroid.SQLDroidDriver',
-  url: "jdbc:sqldroid:#{DB_FILE}?timeout=60000&retry=1000",
-  database: DB_FILE,
-  pool: 50,
+		adapter: 'sqlite3',
+		driver: 'org.sqldroid.SQLDroidDriver',
+		url: "jdbc:sqldroid:#{DB_FILE}?timeout=60000&retry=1000",
+		database: DB_FILE,
+		pool: 50,
 }
 
 # org.sqldroid.Log.LEVEL = android.util.Log::VERBOSE
@@ -34,19 +34,19 @@ ActiveRecord::Base.establish_connection(connection_options)
 ActiveRecord::Base.connection
 
 unless db_exists
-  ActiveRecord::Base.logger.info 'Create table'
-  result = ActiveRecord::Base.connection.execute <<~DDL
-    CREATE TABLE "counters" (
-      "id" integer primary key autoincrement NOT NULL,
-      "value" integer NOT NULL,
-      "created_at" datetime NOT NULL,
-      "updated_at" datetime NOT NULL
-    )
-  DDL
-  puts "result: #{result.inspect}"
+	ActiveRecord::Base.logger.info 'Create table'
+	result = ActiveRecord::Base.connection.execute <<~DDL
+		CREATE TABLE "counters" (
+			"id" integer primary key autoincrement NOT NULL,
+			"value" integer NOT NULL,
+			"created_at" datetime NOT NULL,
+			"updated_at" datetime NOT NULL
+		)
+	DDL
+	puts "result: #{result.inspect}"
 end
 
 class Counter < ActiveRecord::Base
-  include ActiveRecord::Validations
-  validates :value, presence: true
+	include ActiveRecord::Validations
+	validates :value, presence: true
 end
