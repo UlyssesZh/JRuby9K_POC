@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.ruboto.jruby9k_poc">
+
+    <application
+        android:allowBackup="true"
+        android:fullBackupContent="true">
+        <activity android:name='org.ruboto.RubotoActivity' />
+        <activity android:name='org.ruboto.RubotoDialog' android:theme='@android:style/Theme.Dialog' />
+        <activity
+            android:name='org.ruboto.SplashActivity'
+            android:configChanges='orientation|screenSize'
+            android:exported='false'
+            android:noHistory='true' />
+        <service
+            android:name='org.ruboto.RubotoService'
+            android:exported='false' />
+    </application>
+</manifest>

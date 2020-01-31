@@ -28,7 +28,7 @@ package java.lang;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class ClassValue<T> {
-	private final ConcurrentHashMap<Class<?>, T> cache = new ConcurrentHashMap(128);
+	private final ConcurrentHashMap<Class<?>, T> cache = new ConcurrentHashMap<>(128);
 	
 	public ClassValue() {
 	}

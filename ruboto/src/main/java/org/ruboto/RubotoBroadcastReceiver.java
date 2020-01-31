@@ -32,9 +32,9 @@ public class RubotoBroadcastReceiver extends android.content.BroadcastReceiver i
 			// FIXME(uwe):  Simplify when we stop support for snake case aliasing interface callback methods.
 			if ((Boolean)JRubyAdapter.runScriptlet(scriptInfo.getRubyClassName() + ".instance_methods(false).any?{|m| m.to_sym == :onReceive}")) {
 				Log.d("onReceive: call method");
-				JRubyAdapter.runRubyMethod(this, "onReceive", new Object[]{context, intent});
+				JRubyAdapter.runRubyMethod(this, "onReceive", context, intent);
 			} else if ((Boolean)JRubyAdapter.runScriptlet(scriptInfo.getRubyClassName() + ".instance_methods(false).any?{|m| m.to_sym == :on_receive}")) {
-				JRubyAdapter.runRubyMethod(this, "on_receive", new Object[]{context, intent});
+				JRubyAdapter.runRubyMethod(this, "on_receive", context, intent);
 			}
 			// EMXIF
 		} catch(Exception e) {

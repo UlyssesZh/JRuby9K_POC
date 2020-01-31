@@ -288,9 +288,7 @@ public class StaticScope implements Serializable {
 	
 	public String[] getVariables() {
 		String[] newVars = new String[variableNames.length];
-		for (int i = 0; i < variableNames.length; i++) {
-			newVars[i] = variableNames[i];
-		}
+		System.arraycopy(variableNames, 0, newVars, 0, variableNames.length);
 		return newVars;
 	}
 	
